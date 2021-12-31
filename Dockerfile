@@ -1,5 +1,5 @@
 # 2020/10/14最新versionを取得
-FROM golang:1.15.2-alpine
+FROM golang:1.16.12-alpine3.15
 # アップデートとgitのインストール！！
 RUN apk update && apk add git
 # appディレクトリの作成
@@ -8,6 +8,3 @@ RUN mkdir /go/src/app
 WORKDIR /go/src/app
 # ホストのファイルをコンテナの作業ディレクトリに移行
 ADD . /go/src/app
-
-RUN go get -u github.com/oxequa/realize 
-CMD ["realize", "start"]
