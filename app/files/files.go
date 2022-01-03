@@ -2,6 +2,6 @@ package files
 
 import "fmt"
 
-func karioki(){
+func Karioki(){
 	fmt.Println("Karioki")
 }
