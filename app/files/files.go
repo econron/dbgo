@@ -16,6 +16,10 @@ type BlockId struct {
 	filename string
 }
 
+type Page struct {
+	buffer []byte
+}
+
 func FileMgr(directory string) {
 	if !exists(directory) {
 		os.MkdirAll(directory, os.ModePerm)
@@ -38,7 +42,7 @@ func exists(directory string) bool {
 	return true
 }
 
-func Read(bksize int, c safeCounter, blk BlockId) {
+func Read(bksize int, c safeCounter, blk BlockId, p Page) {
 	c.mu.Lock()
 	// ここにファイル読み出し処理を書く
 	file, error := os.Open(blk.filename)
@@ -52,7 +56,36 @@ func Read(bksize int, c safeCounter, blk BlockId) {
 		return
 	}
 	fmt.Println(seek)
-	// ファイル内のblocksize *
+	// seekメソッドで変客された値をoffsetとしてファイルに書き込む
+	num, error := file.ReadAt(p.buffer, seek)
+	if error != nil {
+		panic(error)
+	}
+	fmt.Println(num)
+	defer file.Close()
+	defer c.mu.Unlock()
+}
+
+func Write(bksize int, c safeCounter, blk BlockId, p Page) {
+	c.mu.Lock()
+	// ここにファイル読み出し処理を書く
+	file, error := os.Open(blk.filename)
+	// bytebufferに読み出したデータを格納する
+	if error != nil {
+		panic(error)
+	}
+	var bl int = bksize * blk.blknum
+	seek, err := file.Seek(int64(bl), 0)
+	if err != nil {
+		return
+	}
+	fmt.Println(seek)
+	// seekメソッドで変客された値をoffsetとしてファイルに書き込む
+	num, error := file.WriteAt(p.buffer, seek)
+	if error != nil {
+		panic(error)
+	}
+	fmt.Println(num)
 	defer file.Close()
 	defer c.mu.Unlock()
 }
