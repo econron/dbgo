@@ -54,3 +54,10 @@ func TestWriteContentToFile(t *testing.T) {
 	//・ブロック数とブロックサイズをかけた数分だけ3のtestfile内をseekする
 	//・そこにbytebufferを全て詰め込む
 }
+
+func TestFileMangerWrite(t *testing.T) {
+	blkId := BlockId{blknum: 60, filename: "test.txt"}
+	stringBytes := SetStringByte("abcdefgh", blkId)
+	page := Page{buffer: stringBytes}
+	Write(100, safeCounter{}, blkId, page)
+}

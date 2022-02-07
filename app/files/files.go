@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -18,6 +19,21 @@ type BlockId struct {
 
 type Page struct {
 	buffer []byte
+}
+
+func SetStringByte(target string, blkId BlockId) []byte {
+	var logicalBlock []byte
+	//・確保した領域に文字列（abcdefghijklm）を設定する
+	stringBytes := strings.NewReader(target)
+	var len int = int(stringBytes.Size())
+	for i := 0; i < len; i++ {
+		byte, error := stringBytes.ReadByte()
+		if error != nil {
+			panic(error)
+		}
+		logicalBlock = append(logicalBlock, byte)
+	}
+	return logicalBlock
 }
 
 func FileMgr(directory string) {
@@ -69,7 +85,7 @@ func Read(bksize int, c safeCounter, blk BlockId, p Page) {
 func Write(bksize int, c safeCounter, blk BlockId, p Page) {
 	c.mu.Lock()
 	// ここにファイル読み出し処理を書く
-	file, error := os.Open(blk.filename)
+	file, error := os.Create(blk.filename)
 	// bytebufferに読み出したデータを格納する
 	if error != nil {
 		panic(error)
@@ -77,7 +93,7 @@ func Write(bksize int, c safeCounter, blk BlockId, p Page) {
 	var bl int = bksize * blk.blknum
 	seek, err := file.Seek(int64(bl), 0)
 	if err != nil {
-		return
+		panic(err)
 	}
 	fmt.Println(seek)
 	// seekメソッドで変客された値をoffsetとしてファイルに書き込む
